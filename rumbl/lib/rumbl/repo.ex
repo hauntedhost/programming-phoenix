@@ -15,19 +15,17 @@ defmodule Rumbl.Repo do
 
   def all(_module), do: []
 
-  def get(module, id) do
-    all(module) |> Enum.find &(params_match?(&1, {:id, id}))
-  end
+  def get(module, id), do: get_by(module, id: id)
 
   def get_by(module, params) do
-    all(module) |> Enum.find &(all_params_match?(&1, params))
+    Enum.find all(module), record_contains?(params)
   end
 
-  defp all_params_match?(record, params) do
-    params |> Enum.all? &(params_match?(record, &1))
+  defp record_contains?(params) do
+    fn(record) -> Enum.all? params, params_in?(record) end
   end
 
-  defp params_match?(record, {key, val}) do
-    Map.get(record, key) == val
+  def params_in?(record) do
+    fn({key, val}) -> Map.get(record, key) == val end
   end
 end
