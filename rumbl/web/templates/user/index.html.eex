@@ -1,0 +1,19 @@
+<h1>Users:</h1>
+
+<table class="table">
+  <%= for user <- @users do %>
+    <tr>
+      <td style="width: 80px">
+        <%= user.id %>
+      </td>
+      <td>
+        <strong title="<%= user.name %>">
+          <%= first_name(user) %>
+        </strong>
+      </td>
+      <td>
+        <%= link("View", to: user_path(@conn, :show, user.username)) %>
+      </td>
+    </tr>
+  <% end %>
+</table>
