@@ -21,8 +21,9 @@ defmodule Hello.ConnCase do
       use Phoenix.ConnTest
 
       alias Hello.Repo
-      import Ecto.Model
-      import Ecto.Query, only: [from: 2]
+      import Ecto
+      import Ecto.Changeset
+      import Ecto.Query, only: [from: 1, from: 2]
 
       import Hello.Router.Helpers
 
@@ -36,6 +37,6 @@ defmodule Hello.ConnCase do
       Ecto.Adapters.SQL.restart_test_transaction(Hello.Repo, [])
     end
 
-    :ok
+    {:ok, conn: Phoenix.ConnTest.conn()}
   end
 end

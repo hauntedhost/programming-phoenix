@@ -18,8 +18,9 @@ defmodule Hello.Web do
 
   def model do
     quote do
-      use Ecto.Model
+      use Ecto.Schema
 
+      import Ecto
       import Ecto.Changeset
       import Ecto.Query, only: [from: 1, from: 2]
     end
@@ -30,10 +31,11 @@ defmodule Hello.Web do
       use Phoenix.Controller
 
       alias Hello.Repo
-      import Ecto.Model
+      import Ecto
       import Ecto.Query, only: [from: 1, from: 2]
 
       import Hello.Router.Helpers
+      import Hello.Gettext
     end
   end
 
@@ -48,6 +50,8 @@ defmodule Hello.Web do
       use Phoenix.HTML
 
       import Hello.Router.Helpers
+      import Hello.ErrorHelpers
+      import Hello.Gettext
     end
   end
 
@@ -62,8 +66,9 @@ defmodule Hello.Web do
       use Phoenix.Channel
 
       alias Hello.Repo
-      import Ecto.Model
+      import Ecto
       import Ecto.Query, only: [from: 1, from: 2]
+      import Hello.Gettext
     end
   end
 
