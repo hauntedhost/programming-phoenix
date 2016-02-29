@@ -1,0 +1,2 @@
+<strong>Username:</strong> <%= @user.username %><br>
+<strong>Name:</strong> <%= @user.name %><br>

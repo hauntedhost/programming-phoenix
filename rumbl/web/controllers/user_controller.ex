@@ -5,4 +5,9 @@ defmodule Rumbl.UserController do
     users = Repo.all(Rumbl.User)
     render(conn, "index.html", users: users)
   end
+
+  def show(conn, %{"username" => username}) do
+    user = Repo.get_by(Rumbl.User, %{username: username})
+    render(conn, "show.html", user: user)
+  end
 end
