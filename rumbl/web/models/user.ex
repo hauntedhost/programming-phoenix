@@ -19,5 +19,6 @@ defmodule Rumbl.User do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> validate_length(:username, min: 4, max: 24)
+    |> validate_exclusion(:username, ~w(new))
   end
 end
