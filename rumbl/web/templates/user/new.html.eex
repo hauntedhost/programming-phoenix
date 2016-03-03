@@ -8,7 +8,7 @@
   </div>
 <% end %>
 
-<%= form_for @changeset, user_path(@conn, :create), fn(f) -> %>
+<%= form_for(@changeset, user_path(@conn, :create), fn(f) -> %>
   <div class="form-group">
     <%= text_input(f, :name, placeholder: "Name", class: "form-control") %>
     <%= error_tag(f, :name) %>
@@ -23,4 +23,4 @@
   </div>
 
   <%= submit("Create User", class: "btn btn-primary")%>
-<% end %>
+<% end) %>

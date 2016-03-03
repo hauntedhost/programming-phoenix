@@ -24,7 +24,7 @@ defmodule Rumbl.User do
     |> changeset(params)
     |> cast(params, ~w(password), [])
     |> validate_length(:password, min: 8, max: 128)
-    |> put_pass_hash
+    |> put_pass_hash()
   end
 
   defp put_pass_hash(changeset) do
