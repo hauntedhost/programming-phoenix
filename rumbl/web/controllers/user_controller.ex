@@ -1,6 +1,7 @@
 defmodule Rumbl.UserController do
   use Rumbl.Web, :controller
   alias Rumbl.User
+  plug :scrub_params, "user" when action in [:create, :update]
   plug :authenticate_user when action in [:index, :show]
 
   def create(conn, %{"user" => user_params}) do

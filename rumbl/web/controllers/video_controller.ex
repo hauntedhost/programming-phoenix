@@ -1,8 +1,6 @@
 defmodule Rumbl.VideoController do
   use Rumbl.Web, :controller
-
   alias Rumbl.Video
-
   plug :scrub_params, "video" when action in [:create, :update]
 
   def index(conn, _params) do
@@ -29,18 +27,18 @@ defmodule Rumbl.VideoController do
   end
 
   def show(conn, %{"id" => id}) do
-    video = get_by_uuid!(Video, id)
+    video = Repo.get_by_uuid!(Video, id)
     render(conn, "show.html", video: video)
   end
 
   def edit(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
+    video = Repo.get_by_uuid!(Video, id)
     changeset = Video.changeset(video)
     render(conn, "edit.html", video: video, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "video" => video_params}) do
-    video = Repo.get!(Video, id)
+    video = Repo.get_by_uuid!(Video, id)
     changeset = Video.changeset(video, video_params)
 
     case Repo.update(changeset) do
@@ -54,7 +52,7 @@ defmodule Rumbl.VideoController do
   end
 
   def delete(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
+    video = Repo.get_by_uuid!(Video, id)
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
@@ -63,14 +61,5 @@ defmodule Rumbl.VideoController do
     conn
     |> put_flash(:info, "Video deleted successfully.")
     |> redirect(to: video_path(conn, :index))
-  end
-
-  defp get_by_uuid!(model, id) do
-    case Ecto.Type.dump(Ecto.UUID, id) do
-      {:ok, _} ->
-        Repo.get!(model, id)
-      :error ->
-        raise Ecto.NoResultsError, queryable: model
-    end
   end
 end

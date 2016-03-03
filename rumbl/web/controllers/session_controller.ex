@@ -1,5 +1,6 @@
 defmodule Rumbl.SessionController do
   use Rumbl.Web, :controller
+  plug :scrub_params, "session" when action in [:create]
 
   def create(conn, %{"session" => %{"username" => user, "password" => pass}}) do
     case Rumbl.Auth.login_by_username_and_pass(conn, user, pass, repo: Repo) do
