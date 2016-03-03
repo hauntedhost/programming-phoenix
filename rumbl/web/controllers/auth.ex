@@ -32,4 +32,14 @@ defmodule Rumbl.Auth do
         {:error, :not_found, conn}
     end
   end
+
+  def logout(conn) do
+    conn
+    |> delete_assign(:current_user)
+    |> delete_session(:user_id)
+  end
+
+  defp delete_assign(conn, key) do
+    Map.update!(conn, :assigns, &Map.delete(&1, key))
+  end
 end
