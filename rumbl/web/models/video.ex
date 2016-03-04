@@ -8,12 +8,13 @@ defmodule Rumbl.Video do
     field :title, :string
     field :description, :string
     belongs_to :user, Rumbl.User, type: :binary_id
+    belongs_to :category, Rumbl.Category, type: :binary_id
 
     timestamps
   end
 
   @required_fields ~w(url title description)
-  @optional_fields ~w()
+  @optional_fields ~w(category_id)
 
   def changeset(model, params \\ :empty) do
     model

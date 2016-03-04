@@ -1,7 +1,9 @@
 defmodule Rumbl.VideoController do
   use Rumbl.Web, :controller
   alias Rumbl.Video
+  alias Rumbl.Category
   plug :scrub_params, "video" when action in [:create, :update]
+  plug :load_categories when action in [:create, :edit, :new, :update]
 
   # def action(conn, _) do
   #   current_user = conn.assigns.current_user
@@ -73,5 +75,13 @@ defmodule Rumbl.VideoController do
 
   defp get_from_user_videos!(conn, id) do
     Repo.get_by_uuid!(user_videos(conn), id)
+  end
+
+  defp load_categories(conn, _) do
+    query = Category
+    |> Category.alphabetical
+    |> Category.names_and_ids
+    categories = Repo.all(query)
+    assign(conn, :categories, categories)
   end
 end
