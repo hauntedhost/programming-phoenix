@@ -14,6 +14,10 @@ defmodule Rumbl.Auth do
     assign(conn, :current_user, user)
   end
 
+  def current_user(conn) do
+    conn.assigns.current_user
+  end
+
   def authenticate_user(conn, _opts) do
     if conn.assigns.current_user do
       conn

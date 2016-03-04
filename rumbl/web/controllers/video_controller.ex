@@ -3,8 +3,13 @@ defmodule Rumbl.VideoController do
   alias Rumbl.Video
   plug :scrub_params, "video" when action in [:create, :update]
 
+  # def action(conn, _) do
+  #   current_user = conn.assigns.current_user
+  #   apply(__MODULE__, action_name(conn), [conn, conn.params, current_user])
+  # end
+
   def index(conn, _params) do
-    videos = Repo.all(Video)
+    videos = user_videos(conn) |> Repo.all
     render(conn, "index.html", videos: videos)
   end
 
@@ -14,7 +19,9 @@ defmodule Rumbl.VideoController do
   end
 
   def create(conn, %{"video" => video_params}) do
-    changeset = Video.changeset(%Video{}, video_params)
+    changeset = current_user(conn)
+    |> build_assoc(:videos)
+    |> Video.changeset(video_params)
 
     case Repo.insert(changeset) do
       {:ok, _video} ->
@@ -27,18 +34,18 @@ defmodule Rumbl.VideoController do
   end
 
   def show(conn, %{"id" => id}) do
-    video = Repo.get_by_uuid!(Video, id)
+    video = get_from_user_videos!(conn, id)
     render(conn, "show.html", video: video)
   end
 
   def edit(conn, %{"id" => id}) do
-    video = Repo.get_by_uuid!(Video, id)
+    video = get_from_user_videos!(conn, id)
     changeset = Video.changeset(video)
     render(conn, "edit.html", video: video, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "video" => video_params}) do
-    video = Repo.get_by_uuid!(Video, id)
+    video = get_from_user_videos!(conn, id)
     changeset = Video.changeset(video, video_params)
 
     case Repo.update(changeset) do
@@ -52,14 +59,19 @@ defmodule Rumbl.VideoController do
   end
 
   def delete(conn, %{"id" => id}) do
-    video = Repo.get_by_uuid!(Video, id)
-
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
+    video = get_from_user_videos!(conn, id)
     Repo.delete!(video)
 
     conn
     |> put_flash(:info, "Video deleted successfully.")
     |> redirect(to: video_path(conn, :index))
+  end
+
+  defp user_videos(conn) do
+    assoc(current_user(conn), :videos)
+  end
+
+  defp get_from_user_videos!(conn, id) do
+    Repo.get_by_uuid!(user_videos(conn), id)
   end
 end
