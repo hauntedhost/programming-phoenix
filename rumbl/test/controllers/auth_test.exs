@@ -31,6 +31,7 @@ defmodule Rumbl.AuthTest do
     |> send_resp(:ok, "")
 
     next_conn = get(login_conn, "/")
+
     assert get_session(next_conn, :user_id) == user_id
   end
 
@@ -42,6 +43,7 @@ defmodule Rumbl.AuthTest do
     |> send_resp(:ok, "")
 
     next_conn = get(logout_conn, "/")
+
     refute get_session(next_conn, :user_id)
   end
 
@@ -77,25 +79,4 @@ defmodule Rumbl.AuthTest do
     assert {:error, :unauthorized, _conn} =
       Auth.login_by_username_and_pass(conn, "batman", "wrongpass", repo: Repo)
   end
-
-  # test "login_user", %{conn: conn} do
-  #   user = insert_user()
-  #   login_conn = conn
-  #   |> bypass_through(Rumbl.Router, :browser)
-  #   |> get("/")
-  #   |> Auth.login(user)
-  #   |> send_resp(:ok, "")
-  #
-  #   conn = get(login_conn, video_path(login_conn, :index))
-  #
-  #   # IO.inspect(conn)
-  #
-  #   refute login_conn.halted
-  #
-  #   # conn = conn
-  #   # |> assign(:current_user, %Rumbl.User{})
-  #   # |> Auth.authenticate_user([])
-  #   #
-  #   # refute conn.halted
-  # end
 end

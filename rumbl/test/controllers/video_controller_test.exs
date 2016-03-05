@@ -41,6 +41,7 @@ defmodule Rumbl.VideoControllerTest do
     other_video = insert_video(insert_user(), title: "other video")
 
     conn = get(conn, video_path(conn, :index))
+
     assert html_response(conn, 200) =~ ~r/listing videos/i
     assert String.contains?(conn.resp_body, user_video.title)
     refute String.contains?(conn.resp_body, other_video.title)
@@ -50,7 +51,9 @@ defmodule Rumbl.VideoControllerTest do
   test "creates current user video and redirects", %{conn: conn} do
     before_count = video_count(Video)
     user = conn.assigns.current_user
+
     conn = post(conn, video_path(conn, :create), video: @valid_attrs)
+
     assert redirected_to(conn) == video_path(conn, :index)
     assert Repo.get_by!(Video, @valid_attrs).user_id == user.id
     assert video_count(Video) == before_count + 1
@@ -59,7 +62,9 @@ defmodule Rumbl.VideoControllerTest do
   @tag login_as: "batman"
   test "given invalid params, does not create video, renders errors", %{conn: conn} do
     before_count = video_count(Video)
+
     conn = post(conn, video_path(conn, :create), video: @invalid_attrs)
+
     assert html_response(conn, 200) =~ ~r/please check the errors below/i
     assert video_count(Video) == before_count
   end
