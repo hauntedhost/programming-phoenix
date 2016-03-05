@@ -1,5 +1,6 @@
 defmodule Rumbl.TestHelpers do
   alias Rumbl.Repo
+  alias Rumbl.Auth
   alias Rumbl.User
 
   def insert_user(attrs \\ %{}) do
@@ -16,10 +17,6 @@ defmodule Rumbl.TestHelpers do
   def insert_video(user, attrs \\ %{}) do
     changeset = Ecto.build_assoc(user, :videos, attrs)
     Repo.insert!(changeset)
-  end
-
-  defp secret_key_base do
-    Application.get_env(:rumbl, Rumbl.Endpoint)[:secret_key_base]
   end
 
   defp random_hash do
