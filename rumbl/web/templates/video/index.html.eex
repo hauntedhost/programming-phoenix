@@ -3,27 +3,19 @@
 <table class="table">
   <thead>
     <tr>
-      <th>User</th>
       <th>Category</th>
-      <th>Url</th>
       <th>Title</th>
-      <th>Description</th>
-
-      <th></th>
+      <th style="min-width: 180px"></th>
     </tr>
   </thead>
   <tbody>
 <%= for video <- @videos do %>
     <tr>
-      <td><%= video.user_id %></td>
-      <td><%= video.category_id %></td>
-      <td><%= video.url %></td>
+      <td><%= category_name(video.category) %></td>
       <td><%= video.title %></td>
-      <td><%= video.description %></td>
-
       <td class="text-right">
-        <%= link "Show",
-              to: video_path(@conn, :show, video),
+        <%= link "Watch",
+              to: watch_path(@conn, :show, video),
               class: "btn btn-default btn-xs" %>
         <%= link "Edit",
               to: video_path(@conn, :edit, video),

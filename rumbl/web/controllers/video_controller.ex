@@ -5,13 +5,8 @@ defmodule Rumbl.VideoController do
   plug :scrub_params, "video" when action in [:create, :update]
   plug :load_categories when action in [:create, :edit, :new, :update]
 
-  # def action(conn, _) do
-  #   current_user = conn.assigns.current_user
-  #   apply(__MODULE__, action_name(conn), [conn, conn.params, current_user])
-  # end
-
   def index(conn, _params) do
-    videos = user_videos(conn) |> Repo.all
+    videos = user_videos(conn) |> Repo.all |> Repo.preload(:category)
     render(conn, "index.html", videos: videos)
   end
 
