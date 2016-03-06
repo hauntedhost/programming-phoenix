@@ -27,7 +27,8 @@ defmodule Rumbl.Mixfile do
         :gettext,
         :phoenix_ecto,
         :postgrex,
-        :comeonin
+        :comeonin,
+        :plug_graphql
       ]
     ]
   end
@@ -44,6 +45,7 @@ defmodule Rumbl.Mixfile do
       {:comeonin, "~> 2.0"},
       {:cowboy, "~> 1.0"},
       {:gettext, "~> 0.9"},
+      {:plug_graphql, "~> 0.1.5"},
       {:phoenix, "~> 1.1.4"},
       {:phoenix_ecto, "~> 2.0"},
       {:phoenix_html, "~> 2.4"},

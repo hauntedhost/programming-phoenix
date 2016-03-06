@@ -22,4 +22,13 @@ defmodule Rumbl.Repo do
         raise Ecto.NoResultsError, queryable: model
     end
   end
+
+  def get_by_uuid(model, id) do
+    case Ecto.Type.dump(Ecto.UUID, id) do
+      {:ok, _} ->
+        get(model, id)
+      :error ->
+        nil
+    end
+  end
 end

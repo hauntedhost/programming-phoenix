@@ -29,6 +29,12 @@ defmodule Rumbl.Router do
     resources "/videos", VideoController
   end
 
+  scope "/api" do
+    pipe_through :api
+
+    forward "/", GraphQL.Plug, schema: {Rumbl.Schema, :schema}
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Rumbl do
   #   pipe_through :api
