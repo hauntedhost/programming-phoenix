@@ -7,71 +7,222 @@ defmodule Rumbl.Schema do
   alias GraphQL.Type.String
   alias GraphQL.Type.ID
 
+  @moduledoc """
+  This module configures the Rumbl GraphQL implementation.
+
+  example queries:
+  {
+    user(username:"sean") {
+      name
+    }
+
+    user(id: "63254a3f-76fa-469a-9132-7224ffcbb9b1") {
+      username
+    }
+
+    users {
+      id,
+      name,
+      videos(category: "elixir") {
+        title,
+        user {
+          id,
+          name
+        }
+      }
+    }
+
+    video(id: "6076fed9-d2d0-43d3-965c-077359a65638") {
+      id,
+      title
+    }
+
+    videos {
+      title
+    }
+
+    categories {
+      id,
+      name
+    }
+  }
+  """
+
   def schema do
-    video = %ObjectType{
-      name: "Video",
-      fields: %{
-        id: %{type: %String{}},
-        url: %{type: %String{}},
-        title: %{type: %String{}},
+    %Schema{
+      query: %ObjectType{
+        name: "API",
+        fields: %{
+          user: user_query,
+          users: users_query,
+          video: video_query,
+          videos: videos_query,
+          categories: categories_query
+        }
       }
     }
+  end
 
-    user = %ObjectType{
-      name: "User",
-      fields: %{
-        id: %{type: %String{}},
-        username: %{type: %String{}},
-        name: %{type: %String{}},
-        videos: %{
-          type: %List{ofType: video},
-          resolve: {Rumbl.Schema, :videos}
-        },
-      }
-    }
+  # QUERIES
+  # -------
 
-    user_query = %{
-      type: user,
+  defp user_query do
+    %{
+      type: user_type,
       args: %{
         id: %{type: %String{}},
         username: %{type: %String{}}
       },
       resolve: {Rumbl.Schema, :user}
     }
+  end
 
-    users_query = %{
-      type: %List{ofType: user},
+  defp users_query do
+    %{
+      type: %List{ofType: user_type},
       resolve: {Rumbl.Schema, :users}
     }
+  end
 
-    queries = %ObjectType{
-      name: "GraphQL queries",
+
+  defp video_query do
+    %{
+      type: video_type,
+      args: %{
+        id: %{type: %String{}}
+      },
+      resolve: {Rumbl.Schema, :video}
+    }
+  end
+
+  defp videos_query do
+    %{
+      type: %List{ofType: video_type},
+      args: %{
+        category: %{type: %String{}}
+      },
+      resolve: {Rumbl.Schema, :videos}
+    }
+  end
+
+  defp categories_query do
+    %{
+      type: %List{ofType: category_type},
+      resolve: {Rumbl.Schema, :categories}
+    }
+  end
+
+  # TYPES
+  # -----
+
+  defp user_type do
+    %ObjectType{
+      name: "User",
       fields: %{
-        user: user_query,
-        users: users_query
+        id: %{type: %String{}},
+        username: %{type: %String{}},
+        name: %{type: %String{}},
+        videos: %{
+          args: %{
+            category: %{type: %String{}}
+          },
+          type: %List{ofType: video_type},
+          resolve: {Rumbl.Schema, :videos}
+        },
       }
     }
+  end
 
-    %Schema{
-      query: queries
+  defp video_type do
+    %ObjectType{
+      name: "Video",
+      fields: %{
+        id: %{type: %String{}},
+        url: %{type: %String{}},
+        title: %{type: %String{}},
+        user: %{
+          type: video_user_type,
+          resolve: {Rumbl.Schema, :user}
+        },
+        category: %{
+          type: %String{},
+          resolve: {Rumbl.Schema, :category}
+        },
+      }
     }
   end
 
-  def user(_, params = %{id: user_id}, query) do
-    Repo.get_by_uuid(Rumbl.User, user_id)
+  defp video_user_type do
+    %ObjectType{
+      name: "User",
+      fields: %{
+        id: %{type: %String{}},
+        username: %{type: %String{}},
+        name: %{type: %String{}}
+      }
+    }
   end
 
-  def user(_, params = %{username: username}, query) do
-    Repo.one from v in Rumbl.User,
-      where: v.username == ^username
+  defp category_type do
+    %ObjectType{
+      name: "Category",
+      fields: %{
+        id: %{type: %String{}},
+        name: %{type: %String{}},
+      }
+    }
   end
+
+  # RESOLVERS
+  # ---------
 
   def users(_, _, _) do
     Rumbl.Repo.all(Rumbl.User)
   end
 
+  def user(video = %Rumbl.Video{}, _, _) do
+    Repo.one Ecto.assoc(video, :user)
+  end
+
+  def user(_, %{id: user_id}, _) do
+    Repo.get_by_uuid(Rumbl.User, user_id)
+  end
+
+  def user(_, %{username: username}, _) do
+    Repo.one from u in Rumbl.User,
+      where: ilike(u.username, ^username)
+  end
+
+  def videos(user = %Rumbl.User{}, %{category: category}, _) do
+    Repo.all from v in Ecto.assoc(user, :videos),
+      join: c in assoc(v, :category),
+      where: ilike(c.name, ^category)
+  end
+
   def videos(user = %Rumbl.User{}, _, _) do
+    Repo.all Ecto.assoc(user, :videos)
+  end
+
+  def videos(_, %{category: category}, _) do
     Repo.all from v in Rumbl.Video,
-      where: v.user_id == ^user.id
+      join: c in assoc(v, :category),
+      where: ilike(c.name, ^category)
+  end
+
+  def videos(_, _, _) do
+    Repo.all(Rumbl.Video)
+  end
+
+  def video(_, %{id: video_id}, _) do
+    Repo.get_by_uuid(Rumbl.Video, video_id)
+  end
+
+  def categories(_, _, _) do
+    Repo.all(Rumbl.Category)
+  end
+
+  def category(video = %Rumbl.Video{}, _, _) do
+    Repo.one from c in Ecto.assoc(video, :category),
+      select: c.name
   end
 end
