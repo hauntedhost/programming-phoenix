@@ -1,22 +1,23 @@
 defmodule Rumbl.TestHelpers do
   alias Rumbl.Repo
-  alias Rumbl.Auth
-  alias Rumbl.User
 
   def insert_user(attrs \\ %{}) do
-    params = Map.merge(%{
+    # NOTE: even though Dict is deprecated, getting intermittent errors with
+    # this function when using Map.merge
+    changes = Dict.merge(%{
       name: "Example User",
       username: "user-#{random_hash}",
       password: "supersecret"
     }, attrs)
 
-    changeset = User.registration_changeset(%User{}, params)
-    Repo.insert!(changeset)
+    %Rumbl.User{}
+    |> Rumbl.User.registration_changeset(changes)
+    |> Repo.insert!
   end
 
   def insert_video(user, attrs \\ %{}) do
     changeset = Ecto.build_assoc(user, :videos, attrs)
-    Repo.insert!(changeset)
+    Rumbl.Repo.insert!(changeset)
   end
 
   defp random_hash do

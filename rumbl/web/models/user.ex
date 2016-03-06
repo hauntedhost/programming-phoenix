@@ -16,7 +16,7 @@ defmodule Rumbl.User do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, ~w(name username), [])
-    |> validate_length(:username, min: 4, max: 24)
+    |> validate_length(:username, min: 3, max: 24)
     |> validate_exclusion(:username, ~w(new))
     |> unique_constraint(:username)
   end
@@ -25,7 +25,7 @@ defmodule Rumbl.User do
     model
     |> changeset(params)
     |> cast(params, ~w(password), [])
-    |> validate_length(:password, min: 8, max: 128)
+    |> validate_length(:password, min: 6, max: 128)
     |> put_pass_hash()
   end
 
